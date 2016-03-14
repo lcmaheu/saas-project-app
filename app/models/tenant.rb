@@ -4,6 +4,10 @@ class Tenant < ActiveRecord::Base
   has_many :members, dependent: :destroy
   has_many :projects, dependent: :destroy
 
+  def can_create_projects?
+    (plan == 'free' && projects.count < 1) || (plan == 'premuim')
+  end
+  
   validates_uniqueness_of :name
   validates_presence_of :name
 
