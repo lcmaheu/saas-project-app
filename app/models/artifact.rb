@@ -4,7 +4,7 @@ class Artifact < ActiveRecord::Base
   attr_accessor :upload
   belongs_to :project
 
-  MAX_FILESIZE = 100.megabytes
+  MAX_FILESIZE = 2000.megabytes
 
   validates_presence_of :name, :upload
   validates_uniqueness_of :name
@@ -14,7 +14,7 @@ class Artifact < ActiveRecord::Base
 
   def uploaded_file_size
     if upload
-      errors.add(:upload, "File size must be less than #{self.class::MAX_FILESIZE}") unless upload.size <= self.class::MAX_FILESIZE
+      errors.add(:upload, "File size must be less than #{self.class::MAX_FILESIZE / 1024 / 1024} MB") unless upload.size <= self.class::MAX_FILESIZE
     end
   end
 
