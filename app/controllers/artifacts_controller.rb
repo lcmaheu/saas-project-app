@@ -81,7 +81,7 @@ class ArtifactsController < ApplicationController
   end
 
   def require_same_user
-    unless (current_user == @artifact.project.owner) || (current_user == @artifact.owner) || current_user.is_admin?
+    unless (current_user.id == @artifact.project.owner) || (current_user.id == @artifact.owner) || current_user.is_admin?
       flash[:danger] = "You can edit or delete only your own artifacts"
       redirect_to root_path
     end
