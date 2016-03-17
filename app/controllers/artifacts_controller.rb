@@ -1,10 +1,12 @@
 class ArtifactsController < ApplicationController
   before_action :set_artifact, only: [:show, :edit, :update, :destroy]
+  before_action :require_same_user, only: [:edit, :update, :destroy]
 
   # GET /artifacts
   # GET /artifacts.json
   def index
-    @artifacts = Artifact.all
+    flash[:danger] = "Access denied"
+    redirect_to root_path
   end
 
   # GET /artifacts/1
@@ -26,6 +28,7 @@ class ArtifactsController < ApplicationController
   # POST /artifacts.json
   def create
     @artifact = Artifact.new(artifact_params)
+    @artifact.owner = current_user.id
 
     respond_to do |format|
       if @artifact.save
@@ -68,13 +71,21 @@ class ArtifactsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_artifact
-      @artifact = Artifact.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_artifact
+    @artifact = Artifact.find(params[:id])
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def artifact_params
-      params.require(:artifact).permit(:name, :project_id, :upload)
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def artifact_params
+    params.require(:artifact).permit(:name, :project_id, :upload)
+  end
+
+  def require_same_user
+    unless (current_user == @artifact.project.owner) || (current_user == @artifact.owner) || current_user.is_admin?
+      flash[:danger] = "You can edit or delete only your own artifacts"
+      redirect_to root_path
     end
+  end
+
 end

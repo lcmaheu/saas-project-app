@@ -1,5 +1,6 @@
 class TenantsController < ApplicationController
   before_action :set_tenant
+  before_action :require_admin
 
   def edit
 
@@ -48,6 +49,13 @@ class TenantsController < ApplicationController
 
   def tenant_params
     params.require(:tenant).permit(:name, :plan)
+  end
+
+  def require_admin
+    unless current_user.tenants.exists?(id: @tenant.id) && current_user.is_admin?
+      flash[:danger] = "Access denied"
+      redirect_to root_path
+    end
   end
 
 end

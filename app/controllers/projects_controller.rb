@@ -2,6 +2,7 @@ class ProjectsController < ApplicationController
   before_action :set_project, only: [:show, :edit, :update, :destroy, :users, :add_user]
   before_action :set_tenant, only: [:show, :edit, :update, :destroy, :new, :create, :users, :add_user]
   before_action :verify_tenant
+  before_action :require_same_user, only: [:edit, :update, :destroy, :add_user]
 
   # GET /projects
   # GET /projects.json
@@ -28,6 +29,7 @@ class ProjectsController < ApplicationController
   def create
     @project = Project.new(project_params)
     @project.users << current_user
+    @project.owner = current_user.id
 
     respond_to do |format|
       if @project.save
@@ -61,7 +63,7 @@ class ProjectsController < ApplicationController
   end
 
   def users
-    @project_users = (@project.users + (User.where(tenant_id: @tenant.id, is_admin: true))) - [current_user]
+    @project_users = (@project.users + (@tenant.users.where(is_admin: true))) - [current_user]
     @other_users = @tenant.users.where(is_admin: false) - (@project_users + [current_user])
   end
 
@@ -70,8 +72,7 @@ class ProjectsController < ApplicationController
 
     respond_to do |format|
       if @project_user.save
-        format.html { redirect_to users_tenant_project_url(id: @project.id, tenant_id: @project.tenant_id),
-                                  notice: "User was added to project" }
+        format.html { redirect_to users_tenant_project_url(id: @project.id, tenant_id: @project.tenant_id) }
       else
         format.html { redirect_to users_tenant_project_url(id: @project.id, tenant_id: @project.tenant_id),
                                   error: "User was not added to project" }
@@ -100,5 +101,13 @@ class ProjectsController < ApplicationController
       redirect_to :root, flash: {error: 'Access denied'}
     end
   end
+
+  def require_same_user
+    if current_user != @project.owner && !current_user.is_admin?
+      flash[:danger] = "You can edit or delete only your own projects"
+      redirect_to root_path
+    end
+  end
+
 
 end

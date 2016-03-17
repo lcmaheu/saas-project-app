@@ -41,4 +41,12 @@ module ApplicationHelper
     ""
   end
 
+  def current_user_may_edit(project)
+    (project.owner == current_user.id) || current_user.is_admin?
+  end
+
+  def current_user_owns(artifact)
+    artifact.owner == current_user.id
+  end
+
 end

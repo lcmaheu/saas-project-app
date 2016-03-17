@@ -4,7 +4,8 @@ class UserProjectsController < ApplicationController
   # GET /user_projects
   # GET /user_projects.json
   def index
-    @user_projects = UserProject.all
+    flash[:danger] = "Access denied"
+    redirect_to root_path
   end
 
   # GET /user_projects/1
@@ -56,8 +57,8 @@ class UserProjectsController < ApplicationController
   def destroy
     @user_project.destroy
     respond_to do |format|
-      format.html { redirect_to users_tenant_project_url(id: @user_project.project_id, tenant_id: @user_project.project.tenant_id),
-                                notice: 'User was removed from project.' }
+      format.html { redirect_to users_tenant_project_url(id: @user_project.project_id,
+                                                         tenant_id: @user_project.project.tenant_id) }
       format.json { head :no_content }
     end
   end

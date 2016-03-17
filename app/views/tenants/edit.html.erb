@@ -8,7 +8,7 @@
       <span class="description">(Unique name for your group or organization for the new account)</span>
       <%= f.text_field :name, required: true, class: "form-control" %>
     </div>
-    <div class="for-group col-md-12 no-side-padding">
+    <div class="for-group col-md-12 no-side-padding bottom-padding">
       <%= f.label :plan %>
       <%= f.select :plan, options_for_select(Plan.options, @tenant.plan), {},
                    required: true, class: "form-control" %>
